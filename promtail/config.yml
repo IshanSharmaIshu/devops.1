@@ -1,0 +1,19 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml  # Tracks last read line from logs
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push  # Send logs to Loki container
+
+scrape_configs:
+  - job_name: custom-logs
+    static_configs:
+      - targets:
+          - localhost  # Static target; not used, just required
+        labels:
+          job: demo-log-job
+          __path__: /var/log/custom/sample-logs.json  # Our mounted log file
+
