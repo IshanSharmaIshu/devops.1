@@ -1,34 +1,34 @@
-version: "3.8"
+version: '3.7'  # Docker Compose version
 
 services:
-  loki:
-    image: "grafana/loki:2.8.2"
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
     ports:
-      - "3100:3100"
+      - "3000:3000"  # Expose Grafana on port 3000
     volumes:
-      - loki_data:/data
-      - ./loki-config.yml:/etc/loki/local-config.yml
-    command: -config.file=/etc/loki/local-config.yml
+      - ./grafana/provisioning:/etc/grafana/provisioning  # Mount provisioning config
+      - grafana-storage:/var/lib/grafana  # Save dashboards/plugins
+    depends_on:
+      - loki  # Grafana waits for Loki to be ready
+    restart: always
+
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100"  # Loki API on 3100
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: always
 
   promtail:
-    image: "grafana/promtail:2.8.2"
+    image: grafana/promtail:2.9.2
+    container_name: promtail
     volumes:
-      - /var/log:/var/log
-      - ./promtail-config.yml:/etc/promtail/config.yml
+      - ./promtail/config.yml:/etc/promtail/config.yml  # Your Promtail config
+      - ./logs:/var/log/custom  # Folder with your custom logs
     command: -config.file=/etc/promtail/config.yml
-    depends_on:
-      - loki
-
-  grafana:
-    image: "grafana/grafana:latest"
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - loki
+    restart: always
 
 volumes:
-  loki_data:
-  grafana_data:
-
+  grafana-storage:  # Volume for Grafana persistence
