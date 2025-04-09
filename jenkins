@@ -32,5 +32,35 @@ pipeline {
                 echo "This is another stage."
             }
         }
+        stage('Install Grafana Plugin') {
+            steps {
+                script {
+                    sh 'java -jar jenkins-cli.jar -s http://localhost:8080/ install-plugin grafana'
+                }
+            }
+        }
+        stage('Configure Grafana Plugin') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                    cat <<EOF > ${JENKINS_HOME}/grafana-config.xml
+                    <hudson.plugins.grafana.GrafanaConfiguration>
+                        <url>http://localhost:3000</url>
+                        <apiKey>YOUR_API_KEY</apiKey>
+                    </hudson.plugins.grafana.GrafanaConfiguration>
+                    EOF
+                    '''
+                }
+            }
+        }
+        stage('Send Logs to Grafana') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                    curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer YOUR_API_KEY" -d @${WORKSPACE}/logs/sample-logs.json http://localhost:3000/api/live/push
+                    '''
+                }
+            }
+        }
     }
 }
