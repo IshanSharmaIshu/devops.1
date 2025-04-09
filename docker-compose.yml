@@ -1,34 +1,31 @@
-version: '3.7'  # Docker Compose version
-
+version: "3.8"
 services:
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"  # Expose Grafana on port 3000
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning  # Mount provisioning config
-      - grafana-storage:/var/lib/grafana  # Save dashboards/plugins
-    depends_on:
-      - loki  # Grafana waits for Loki to be ready
-    restart: always
-
   loki:
-    image: grafana/loki:2.9.2
-    container_name: loki
+    image: "grafana/loki:v2.8.0" # Loki Docker image (you can check for the latest version) [cite: 3]
     ports:
-      - "3100:3100"  # Loki API on 3100
-    command: -config.file=/etc/loki/local-config.yaml
-    restart: always
+      - "3100:3100" # Map port 3100 on the host to 3100 in the container
+    volumes:
+      - loki_data:/data # Mount a volume for Loki data
+      - ./loki-config.yaml:/etc/loki/local-config.yaml # Mount Loki's config file
+    command: -config.file=/etc/loki/local-config.yaml # Tell Loki where its config is
 
   promtail:
-    image: grafana/promtail:2.9.2
-    container_name: promtail
+    image: "grafana/promtail:v2.8.0" # Promtail Docker image (match Loki's version)
     volumes:
-      - ./promtail/config.yml:/etc/promtail/config.yml  # Your Promtail config
-      - ./logs:/var/log/custom  # Folder with your custom logs
-    command: -config.file=/etc/promtail/config.yml
-    restart: always
+      - /var/log:/var/log # Mount the host's log directory (IMPORTANT: Adjust this!)
+      - ./promtail-config.yaml:/etc/promtail/config.yml # Mount Promtail's config file
+    command: -config.file=/etc/promtail/config.yml # Tell Promtail where its config is
+    depends_on:
+      - loki # Promtail needs Loki to be running
 
+  grafana:
+    image: "grafana/grafana:10.1.5" # Grafana Docker image (you can check for the latest version)
+    ports:
+      - "3000:3000" # Map port 3000 on the host to 3000 in the container
+    volumes:
+      - grafana_data:/var/lib/grafana # Mount a volume for Grafana data
+    depends_on:
+      - loki # Grafana needs Loki to be running
 volumes:
-  grafana-storage:  # Volume for Grafana persistence
+  loki_data:  # Define volumes
+  grafana_data:
