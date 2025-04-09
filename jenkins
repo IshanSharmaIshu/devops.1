@@ -32,5 +32,13 @@ pipeline {
                 echo "This is another stage."
             }
         }
+        stage('Deploy Setup') {
+            steps {
+                script {
+                    echo "Deploying the setup using Docker Compose..."
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
     }
 }

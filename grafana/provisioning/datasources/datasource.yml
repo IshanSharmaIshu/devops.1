@@ -8,3 +8,7 @@ datasources:
     isDefault: true
     jsonData:
       maxLines: 1000
+      filters:
+        - observed_timestamp_rfc3339
+        - instrumentation_scope
+        - severity_text

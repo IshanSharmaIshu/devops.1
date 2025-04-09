@@ -9,6 +9,8 @@ services:
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning  # Mount provisioning config
       - grafana-storage:/var/lib/grafana  # Save dashboards/plugins
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Grafana admin password
     depends_on:
       - loki  # Grafana waits for Loki to be ready
     restart: always
@@ -18,7 +20,11 @@ services:
     container_name: loki
     ports:
       - "3100:3100"  # Loki API on 3100
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml  # Loki config
     command: -config.file=/etc/loki/local-config.yaml
+    environment:
+      - LOKI_RETENTION_PERIOD=24h  # Loki retention period
     restart: always
 
   promtail:
@@ -27,7 +33,10 @@ services:
     volumes:
       - ./promtail/config.yml:/etc/promtail/config.yml  # Your Promtail config
       - ./logs:/var/log/custom  # Folder with your custom logs
-    command: -config.file=/etc/promtail/config.yml
+      - ./promtail-config.yml:/etc/promtail/promtail-config.yml  # Promtail config
+    command: -config.file=/etc/promtail/promtail-config.yml
+    environment:
+      - PROMTAIL_SCRAPE_INTERVAL=10s  # Promtail scrape interval
     restart: always
 
 volumes:
