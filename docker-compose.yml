@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   loki:
-    image: "grafana/loki:v2.8.0" # Loki Docker image (you can check for the latest version) [cite: 3]
+    image: "grafana/loki:2.8.2" # Loki Docker image (you can check for the latest version) [cite: 3]
     ports:
       - "3100:3100" # Map port 3100 on the host to 3100 in the container
     volumes:
@@ -10,7 +10,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml # Tell Loki where its config is
 
   promtail:
-    image: "grafana/promtail:v2.8.0" # Promtail Docker image (match Loki's version)
+    image: "grafana/promtail:2.8.2" # Promtail Docker image (match Loki's version)
     volumes:
       - /var/log:/var/log # Mount the host's log directory (IMPORTANT: Adjust this!)
       - ./promtail-config.yaml:/etc/promtail/config.yml # Mount Promtail's config file
@@ -19,7 +19,7 @@ services:
       - loki # Promtail needs Loki to be running
 
   grafana:
-    image: "grafana/grafana:10.1.5" # Grafana Docker image (you can check for the latest version)
+    image: "grafana/grafana:latest" # Grafana Docker image (you can check for the latest version)
     ports:
       - "3000:3000" # Map port 3000 on the host to 3000 in the container
     volumes:
