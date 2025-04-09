@@ -1,7 +1,7 @@
-auth_enabled: false # Disable authentication (for simplicity in this guide)
+auth_enabled: false
 
 server:
-  http_listen_port: 3100 # Loki listens on port 3100
+  http_listen_port: 3100
 
 ingester:
   lifecycler:
@@ -22,6 +22,6 @@ schema_config:
 storage_config:
   boltdb:
     directory: /data/loki/index
-
   filesystem:
     directory: /data/loki/chunks
+

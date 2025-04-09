@@ -1,31 +1,34 @@
 version: "3.8"
+
 services:
   loki:
-    image: "grafana/loki:2.8.2" # Loki Docker image (you can check for the latest version) [cite: 3]
+    image: "grafana/loki:2.8.2"
     ports:
-      - "3100:3100" # Map port 3100 on the host to 3100 in the container
+      - "3100:3100"
     volumes:
-      - loki_data:/data # Mount a volume for Loki data
-      - ./loki-config.yaml:/etc/loki/local-config.yaml # Mount Loki's config file
-    command: -config.file=/etc/loki/local-config.yaml # Tell Loki where its config is
+      - loki_data:/data
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
 
   promtail:
-    image: "grafana/promtail:2.8.2" # Promtail Docker image (match Loki's version)
+    image: "grafana/promtail:2.8.2"
     volumes:
-      - /var/log:/var/log # Mount the host's log directory (IMPORTANT: Adjust this!)
-      - ./promtail-config.yaml:/etc/promtail/config.yml # Mount Promtail's config file
-    command: -config.file=/etc/promtail/config.yml # Tell Promtail where its config is
+      - /var/log:/var/log
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
     depends_on:
-      - loki # Promtail needs Loki to be running
+      - loki
 
   grafana:
-    image: "grafana/grafana:latest" # Grafana Docker image (you can check for the latest version)
+    image: "grafana/grafana:latest"
     ports:
-      - "3000:3000" # Map port 3000 on the host to 3000 in the container
+      - "3000:3000"
     volumes:
-      - grafana_data:/var/lib/grafana # Mount a volume for Grafana data
+      - grafana_data:/var/lib/grafana
     depends_on:
-      - loki # Grafana needs Loki to be running
+      - loki
+
 volumes:
-  loki_data:  # Define volumes
+  loki_data:
   grafana_data:
+

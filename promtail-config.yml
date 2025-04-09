@@ -1,9 +1,9 @@
 server:
-  http_listen_port: 9080 # Promtail listens on port 9080
+  http_listen_port: 9080
   grpc_listen_port: 0
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push # Promtail sends logs to Loki
+  - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
   - job_name: system
@@ -12,30 +12,5 @@ scrape_configs:
           - localhost
         labels:
           job: system
-          __path__: /var/log/*log # CRITICAL: Adjust this to your log file paths!
-    pipeline_stages: # Log processing stages
-      - json:  # Parse log lines as JSON
-          extract_config:
-            observed_timestamp_rfc3339:
-            instrumentation_scope:
-            severity_text:
-            host_name:
-            severity_number:
-            event_timestamp:
-            body:
-            resource:
-            span_id:
-            trace_id:
-      - timestamp: # Parse the timestamp
-          source: observed_timestamp_rfc3339
-          format: "2006-01-02T15:04:05.999999999+05:30" # Use the provided format [cite: 5, 6, 7]
-      - labels: # Add extracted fields as labels
-          observed_timestamp_rfc3339:
-          instrumentation_scope:
-          severity_text:
-          host_name:
-          severity_number:
-          event_timestamp:
-          resource:
-          span_id:
-          trace_id:
+          __path__: /var/log/*log
+
