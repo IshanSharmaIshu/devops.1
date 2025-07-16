@@ -1,24 +1,27 @@
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
-
 positions:
-  filename: /tmp/positions.yaml  # Tracks last read line from logs
-
+  filename: /tmp/positions.yaml
 clients:
-  - url: http://loki:3100/loki/api/v1/push  # Send logs to Loki container
-
+  - url: http://loki:3100/loki/api/v1/push
 scrape_configs:
-  - job_name: custom-logs
+  - job_name: demo-log-job
     static_configs:
-      - targets:
-          - localhost  # Static target; not used, just required
+      - targets: [localhost]
         labels:
           job: demo-log-job
-          __path__: /var/log/custom/sample-logs.json  # Our mounted log file
-pipeline_stages:
-  - json:
-      expressions:
-        observed_timestamp_rfc3339: timestamp
-        instrumentation_scope: scope
-        severity_text: level
+          __path__: /var/log/custom/sample-logs.json
+    pipeline_stages:
+      - json:
+          expressions:
+            observed_timestamp_rfc3339: observed_timestamp_rfc3339
+            instrumentation_scope: instrumentation_scope
+            severity_text: severity_text
+      - labels:
+          observed_timestamp_rfc3339:
+          instrumentation_scope:
+          severity_text:
+      - timestamp:
+          source: observed_timestamp_rfc3339
+          format: RFC3339Nano
