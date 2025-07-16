@@ -23,6 +23,7 @@ services:
     volumes:
       - ./loki-config.yml:/etc/loki/local-config.yml
       - loki-data:/loki
+      - ./loki-wal:/wal 
     command: -config.file=/etc/loki/local-config.yml
     restart: always
     networks:
