@@ -22,7 +22,6 @@ services:
       - "3100:3100"
     volumes:
       - ./loki-config.yml:/etc/loki-config.yml
-      - ./loki-data:/loki-config.yml
     command: -config.file=/etc/loki-config.yml
     restart: always
     networks:
