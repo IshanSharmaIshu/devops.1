@@ -38,6 +38,7 @@ pipeline {
             steps {
                 script {
                     echo "Deploying the setup using Docker Compose..."
+                    sh 'docker-compose down'
                     sh 'docker-compose up -d'
                 }
             }
