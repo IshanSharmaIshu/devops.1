@@ -1,43 +1,47 @@
-version: '3.7'  # Docker Compose version
-
+version: '3.7'
 services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"  # Expose Grafana on port 3000
+      - "3000:3000"
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning  # Mount provisioning config
-      - grafana-storage:/var/lib/grafana  # Save dashboards/plugins
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-storage:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin  # Grafana admin password
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
-      - loki  # Grafana waits for Loki to be ready
+      - loki
     restart: always
-
+    networks:
+      - monitoring
   loki:
     image: grafana/loki:2.9.2
     container_name: loki
     ports:
-      - "3100:3100"  # Loki API on 3100
+      - "3100:3100"
     volumes:
-      - ./loki-config.yml:/etc/loki/local-config.yaml  # Loki config
-    command: -config.file=/etc/loki/local-config.yaml
-    environment:
-      - LOKI_RETENTION_PERIOD=24h  # Loki retention period
+      - ./loki-config.yml:/etc/loki/local-config.yml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yml
     restart: always
-
+    networks:
+      - monitoring
   promtail:
     image: grafana/promtail:2.9.2
     container_name: promtail
     volumes:
-      - ./promtail/config.yml:/etc/promtail/config.yml  # Your Promtail config
-      - ./logs:/var/log/custom  # Folder with your custom logs
-      - ./promtail-config.yml:/etc/promtail/promtail-config.yml  # Promtail config
-    command: -config.file=/etc/promtail/promtail-config.yml
-    environment:
-      - PROMTAIL_SCRAPE_INTERVAL=10s  # Promtail scrape interval
+      - ./promtail/config.yml:/etc/promtail/config.yml
+      - ./logs:/var/log/custom:ro
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+    depends_on:
+      - loki
     restart: always
-
+    networks:
+      - monitoring
+networks:
+  monitoring:
+    driver: bridge
 volumes:
-  grafana-storage:  # Volume for Grafana persistence
+  grafana-storage:
+  loki-data:
