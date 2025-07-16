@@ -21,7 +21,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./loki-config.yml:/etc/loki-config.yml
+      - ./loki/loki-config.yml:/etc/loki-config.yml
       - ./loki-data:/loki
       - /opt/loki/wal:/wal 
     command: -config.file=/etc/loki-config.yml
